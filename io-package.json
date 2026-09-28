@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "euhome",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "news": {
+      "0.1.8": {
+        "en": "send smart commands (scene, rooms, zones, spot) on data point 152 for MQTT devices",
+        "de": "Smart-Befehle (Szene, Räume, Zonen, Spot) auf Datenpunkt 152 für MQTT-Geräte",
+        "ru": "умные команды (сцена, комнаты, зоны, точка) на data point 152 для MQTT-устройств",
+        "pt": "comandos inteligentes (cena, quartos, zonas, ponto) no data point 152 para dispositivos MQTT",
+        "nl": "smart-opdrachten (scène, kamers, zones, spot) op datapunt 152 voor MQTT-apparaten",
+        "fr": "commandes intelligentes (scène, pièces, zones, spot) sur le data point 152 pour les appareils MQTT",
+        "it": "comandi smart (scena, stanze, zone, spot) sul data point 152 per dispositivi MQTT",
+        "es": "comandos inteligentes (escena, habitaciones, zonas, punto) en el data point 152 para dispositivos MQTT",
+        "pl": "inteligentne polecenia (scena, pokoje, strefy, punkt) na data point 152 dla urządzeń MQTT",
+        "uk": "розумні команди (сцена, кімнати, зони, точка) на data point 152 для MQTT-пристроїв",
+        "zh-cn": "为 MQTT 设备在数据点 152 上发送智能命令（场景、房间、区域、定点）"
+      },
       "0.1.7": {
         "en": "add sendCommand (e.g. room cleaning) for devices connected via MQTT",
         "de": "sendCommand (z.B. Raumreinigung) auch für Geräte mit MQTT-Verbindung",

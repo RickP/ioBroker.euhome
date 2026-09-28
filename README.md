@@ -41,59 +41,45 @@ euhome.0.id.remote.sendCommand
 with this you can then
 
 ```
-
 {
-
-  }, "method": { "selectRoomsClean",
-
+  "method": "selectRoomsClean",
   "data": {
-
     "roomIds": [
-
       2
-
     ],
-
     "cleanTimes": 1
-
   }
-
 }
-
 ```
 
-Zone cleaning
+For devices connected via MQTT (log says "Found x devices via MQTT") the JSON is converted into a
+ModeCtrlRequest protobuf and sent on the command data point 152. Supported methods:
+
+| method | data |
+|---|---|
+| `start` | `{"cleanTimes":1}` |
+| `pause` / `resume` / `stop` | – |
+| `goHome` | – |
+| `sceneClean` | `{"sceneId":1790101256}` |
+| `selectRoomsClean` | `{"roomIds":[11,12],"mapId":1,"cleanTimes":1}` |
+| `selectZonesClean` | `{"mapId":1,"zones":[{"x0":-1130,"y0":646,"x1":-830,"y1":646,"x2":-830,"y2":346,"x3":-1130,"y3":346}]}` |
+| `spotClean` | `{"cleanTimes":1}` |
+| `goto` | `{"x":-179,"y":36,"target":"spot"}` |
+
+The scene ids and the map ids can be taken from the adapter data points (`dps.180` lists the scenes with
+name and map id, the map ids are also printed in the logs). A raw protobuf value in hex is sent unchanged,
+e.g. `0a0818720608dc8dcbd506` starts the scene 1790101212.
+
+Zonenreinigung
 
 ```
-
-{"method":"selectZonesClean","data":{"zones":[{"x0":-1130,"y0":646,"x1":-830,"y1":646,"x2":-830,"y2":346,"x3":-1130,"y3":346,"cleanTimes":1,"type":"sweep"}]}}
-
+{"method":"selectZonesClean","data":{"mapId":1,"zones":[{"x0":-1130,"y0":646,"x1":-830,"y1":646,"x2":-830,"y2":346,"x3":-1130,"y3":346,"cleanTimes":1}]}}
 ```
 
-Spot cleaning
+Spotreinigung
 
 ```
-
 {"method":"goto","data":{"cleanTimes":1,"target":"spot","x":-179,"y":36}}
-
-```
-
-Map:
-
-It is theoretically possible to query the map but it is not yet possible to display the data as a map
-
-```
-
-a: tuya.m.device.media.latest
-
-et: 3
-
-v: 2.0
-
-postData: {"devId": "xxxxxxxxxxxxx", "size":500, "start":""}
-
-result: {"result":{"devId":"xxxxxxxxxxxxxxxxx","startRow":"7f3f35c7_wpl4a60873b40e7b1aa5fb_307_501","datatype":0,"dataList": ["7d7d007d7d00","7e7d027e7d027e7d007f7d027f7d027f7d00807d02807d02807d00817d02817d02","817d00827d02827d02827d00837d02837d02837d00847d02847d02847d00","857d02857d02857d00867d02867d02867d00867d00". ......
-
 ```
 
 ## Loginablauf
@@ -110,38 +96,19 @@ euhome.0.id.dps.
 
 euhome.0.id.dps.WORK_MODE = Auto um zu starten
 
-Raumreinigung
-euhome.0.id.remote.sendCommand
-damit kann man dann
+Raum-, Zonen- und Spotreinigung laufen über `euhome.0.id.remote.sendCommand`, die Szene einer Etage
+über `{"method":"sceneClean","data":{"sceneId":<id>}}`. Bei Geräten mit MQTT-Verbindung (Log: "Found x
+devices via MQTT") wird das JSON in einen ModeCtrlRequest-Protobuf gepackt und auf dem Befehls-Datenpunkt
+152 gesendet. Unterstützt werden `start`, `pause`, `resume`, `stop`, `goHome`, `sceneClean`,
+`selectRoomsClean`, `selectZonesClean`, `spotClean` und `goto`.
 
-```
-{
-  "method": "selectRoomsClean",
-  "data": {
-    "roomIds": [
-      2
-    ],
-    "cleanTimes": 1
-  }
-}
-```
+Szene- und Karten-IDs stehen in den Datenpunkten: `dps.180` listet die Szenen mit Name und `map_id`
+(Karten-ID: 1 = Erdgeschoss, 2 = Keller, 3 = Obergeschoss — die Nummern der eufy-App sind davon
+abweichend). Room-IDs lassen sich derzeit nicht auslesen; ein von der App gestarteter Reinigungslauf
+oder die eufy-API liefert sie.
 
-Der State `remote.sendCommand` wird für alle Geräte angelegt – auch für die, die über MQTT eingebunden werden
-(Geräte, bei denen im Log "Found x devices via MQTT" steht). Die Room-IDs stammen aus der eufy-App-Karte
-und sind pro Karte/Etage unterschiedlich; sie lassen sich derzeit nicht vom Adapter auslesen.
-Der Befehl wird als Datapoint 124 base64-kodiert an das Gerät geschickt.
-
-Zonenreinigung
-
-```
-{"method":"selectZonesClean","data":{"zones":[{"x0":-1130,"y0":646,"x1":-830,"y1":646,"x2":-830,"y2":346,"x3":-1130,"y3":346,"cleanTimes":1,"type":"sweep"}]}}
-```
-
-Spotreinigung
-
-```
-{"method":"goto","data":{"cleanTimes":1,"target":"spot","x":-179,"y":36}}
-```
+Ein roher Protobuf-Wert in Hex wird unverändert gesendet, z.B. `0a0818720608dc8dcbd506` startet die
+Szene 1790101212 (Keller).
 
 Map:
 Es ist theoretisch möglich die Karte abzufragen aber es ist bisher nicht möglich die Daten als Karte darzustellen
@@ -163,6 +130,10 @@ https://developer.tuya.com/en/docs/app-development/gyrosweeper?id=Ka6o1iax9v0a2
 <https://forum.iobroker.net/topic/62168/test-adapter-eufy-home-robovac>
 
 ## Changelog
+### 0.1.8 (2026-09-28)
+
+- send smart commands (scene, rooms, zones, spot, goto) on the command data point 152 for devices connected via MQTT
+
 ### 0.1.7 (2026-09-28)
 
 - add sendCommand (room / zone / spot cleaning) for devices connected via MQTT

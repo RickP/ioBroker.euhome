@@ -15,6 +15,8 @@ const Json2iob = require('json2iob');
 const TuyAPI = /** @type {typeof import('tuyapi').default} */ (/** @type {unknown} */ (require('tuyapi')));
 const TuyaCloud = require('./lib/tuyaCloud');
 
+const { MQTT_COMMAND_DPS, buildSmartCommandPayload } = require('./lib/eufyCommands');
+
 class Euhome extends utils.Adapter {
   /**
    * @param {Partial<utils.AdapterOptions>} [options={}]
@@ -903,16 +905,20 @@ class Euhome extends utils.Adapter {
             return;
           }
           if (command === 'sendCommand') {
-            // Smart commands like room cleaning are sent on data point 124 as base64 encoded JSON
-            let commandData;
+            // Smart commands like room cleaning are sent as ModeCtrlRequest on the command data point
+            let commandPayload;
             try {
-              commandData = typeof state.val === 'string' ? JSON.parse(state.val) : state.val;
+              commandPayload = buildSmartCommandPayload(state.val);
             } catch (error) {
               this.log.error(`Cannot parse sendCommand value of ${deviceId}: ${error}`);
               return;
             }
-            this.log.info(`Send smart command to ${deviceId}: ${JSON.stringify(commandData)}`);
-            dataPayload['124'] = Buffer.from(JSON.stringify(commandData)).toString('base64');
+            if (!commandPayload) {
+              this.log.error(`Unsupported or incomplete sendCommand value for ${deviceId}: ${JSON.stringify(state.val)}`);
+              return;
+            }
+            this.log.info(`Send smart command to ${deviceId}: ${JSON.stringify(state.val)}`);
+            dataPayload[MQTT_COMMAND_DPS] = commandPayload;
           } else {
             dataPayload[command] = state.val;
             if (this.dataPoints[device.model]) {
