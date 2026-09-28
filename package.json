@@ -18,10 +18,10 @@
     "url": "https://github.com/TA2k/ioBroker.euhome.git"
   },
   "engines": {
-    "node": ">= 18"
+    "node": ">=22.19.0"
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.2.3",
+    "@iobroker/adapter-core": "^3.4.3",
     "axios": "^1.7.9",
     "got": "^11.8.6",
     "is": "^3.3.0",
@@ -40,8 +40,8 @@
     "@alcalzone/release-script-plugin-manual-review": "^3.7.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
-    "@iobroker/testing": "^5.0.0",
-    "@tsconfig/node14": "^14.1.2",
+    "@iobroker/testing": "^6.2.2",
+    "@tsconfig/node22": "^22.0.6",
     "@types/node": "^22.10.6",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",

@@ -11,7 +11,8 @@ const axios = require('axios').default;
 const mqtt = require('mqtt');
 const crypto = require('crypto');
 const Json2iob = require('json2iob');
-const TuyAPI = require('tuyapi');
+// tuyapi's declaration exposes a default export, but CommonJS exports the class directly.
+const TuyAPI = /** @type {typeof import('tuyapi').default} */ (/** @type {unknown} */ (require('tuyapi')));
 const TuyaCloud = require('./lib/tuyaCloud');
 
 class Euhome extends utils.Adapter {
@@ -687,12 +688,13 @@ class Euhome extends utils.Adapter {
           native: {},
         });
 
+        /** @type {Array<{ command: string, name: string, type: 'boolean' | 'string', role: string, def: boolean | string }>} */
         const remoteArray = [
-          { command: 'Refresh', name: 'True = Refresh' },
+          { command: 'Refresh', name: 'True = Refresh', type: 'boolean', role: 'button', def: false },
           {
             command: 'sendCommand',
             name: 'Send custom Commmand to Device',
-            type: 'json',
+            type: 'string',
             role: 'text',
             def: '{"method":"selectRoomsClean","data":{"roomIds":[2],"cleanTimes":1}}',
           },
@@ -702,9 +704,9 @@ class Euhome extends utils.Adapter {
             type: 'state',
             common: {
               name: remote.name || '',
-              type: remote.type || 'boolean',
-              role: remote.role || 'button',
-              def: remote.def != null ? remote.def : false,
+              type: remote.type,
+              role: remote.role,
+              def: remote.def,
               write: true,
               read: true,
             },
@@ -744,7 +746,7 @@ class Euhome extends utils.Adapter {
       device
         .find()
         .then(() => {
-          this.log.info('Found device on network with IP: ' + device.ip + '');
+          this.log.info('Found device on network');
           device.connect().catch((error) => {
             this.log.error(
               `Failed to connect to device please close the app or check your network. Please allow port 6668 via TCP from the device IP .  ${error}`,
@@ -778,7 +780,7 @@ class Euhome extends utils.Adapter {
         this.log.error(`Error! ${error}`);
       });
       device.on('dp-refresh', (data) => {
-        this.log.info(data);
+        this.log.info(JSON.stringify(data));
         this.json2iob.parse(id, data, {
           forceIndex: true,
           write: true,
@@ -788,7 +790,7 @@ class Euhome extends utils.Adapter {
       });
 
       device.on('data', (data) => {
-        this.log.info(data);
+        this.log.info(JSON.stringify(data));
         this.json2iob.parse(id, data, {
           forceIndex: true,
           write: true,
