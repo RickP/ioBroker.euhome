@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "euhome",
-    "version": "0.1.6",
+    "version": "0.1.7",
     "news": {
+      "0.1.7": {
+        "en": "add sendCommand (e.g. room cleaning) for devices connected via MQTT",
+        "de": "sendCommand (z.B. Raumreinigung) auch für Geräte mit MQTT-Verbindung",
+        "ru": "sendCommand (например, уборка комнаты) для устройств, подключенных через MQTT",
+        "pt": "sendCommand (por exemplo, limpeza de quarto) para dispositivos conectados via MQTT",
+        "nl": "sendCommand (bijv. kamerreiniging) voor apparaten die via MQTT zijn verbonden",
+        "fr": "sendCommand (par ex. nettoyage de pièce) pour les appareils connectés via MQTT",
+        "it": "sendCommand (ad es. pulizia stanza) per dispositivi collegati tramite MQTT",
+        "es": "sendCommand (p. ej. limpieza de habitación) para dispositivos conectados por MQTT",
+        "pl": "sendCommand (np. sprzątanie pokoju) dla urządzeń połączonych przez MQTT",
+        "uk": "sendCommand (напр. прибирання кімнати) для пристроїв, підключених через MQTT",
+        "zh-cn": "为通过 MQTT 连接的设备增加 sendCommand（例如房间清洁）"
+      },
       "0.1.6": {
         "en": "fix login",
         "de": "zurück zur übersicht",

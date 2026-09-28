@@ -599,6 +599,26 @@ class Euhome extends utils.Adapter {
             },
             native: {},
           });
+          // Devices found via MQTT do not have a remote channel yet, create it for smart commands like room cleaning
+          await this.setObjectNotExistsAsync(device.device_sn + '.remote', {
+            type: 'channel',
+            common: {
+              name: 'Remote Controls',
+            },
+            native: {},
+          });
+          await this.setObjectNotExistsAsync(device.device_sn + '.remote.sendCommand', {
+            type: 'state',
+            common: {
+              name: 'Send custom Commmand to Device',
+              type: 'string',
+              role: 'text',
+              def: '{"method":"selectRoomsClean","data":{"roomIds":[2],"cleanTimes":1}}',
+              write: true,
+              read: true,
+            },
+            native: {},
+          });
           currentModel = device.device_model || device.product.product_code;
           const base64 = [];
           const base64ToHex = [];
@@ -878,15 +898,32 @@ class Euhome extends utils.Adapter {
             this.log.error(`No device found for ${deviceId} cannot send command`);
             return;
           }
-          dataPayload[command] = state.val;
-          if (this.dataPoints[device.model]) {
-            const dataPointFound = this.dataPoints[device.model].find((dp) => dp.dp_id == command);
-            if (dataPointFound && state.val != null) {
-              if (dataPointFound.data_type === 'String') {
-                dataPayload[command] = Buffer.from(state.val.toString()).toString('base64');
-              }
-              if (dataPointFound.data_type === 'Raw') {
-                dataPayload[command] = Buffer.from(state.val.toString(), 'hex').toString('base64');
+          if (command === 'Refresh') {
+            this.log.info(`Data points of ${deviceId} are pushed via MQTT, no refresh command needed`);
+            return;
+          }
+          if (command === 'sendCommand') {
+            // Smart commands like room cleaning are sent on data point 124 as base64 encoded JSON
+            let commandData;
+            try {
+              commandData = typeof state.val === 'string' ? JSON.parse(state.val) : state.val;
+            } catch (error) {
+              this.log.error(`Cannot parse sendCommand value of ${deviceId}: ${error}`);
+              return;
+            }
+            this.log.info(`Send smart command to ${deviceId}: ${JSON.stringify(commandData)}`);
+            dataPayload['124'] = Buffer.from(JSON.stringify(commandData)).toString('base64');
+          } else {
+            dataPayload[command] = state.val;
+            if (this.dataPoints[device.model]) {
+              const dataPointFound = this.dataPoints[device.model].find((dp) => dp.dp_id == command);
+              if (dataPointFound && state.val != null) {
+                if (dataPointFound.data_type === 'String') {
+                  dataPayload[command] = Buffer.from(state.val.toString()).toString('base64');
+                }
+                if (dataPointFound.data_type === 'Raw') {
+                  dataPayload[command] = Buffer.from(state.val.toString(), 'hex').toString('base64');
+                }
               }
             }
           }

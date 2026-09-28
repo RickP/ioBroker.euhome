@@ -126,6 +126,11 @@ damit kann man dann
 }
 ```
 
+Der State `remote.sendCommand` wird für alle Geräte angelegt – auch für die, die über MQTT eingebunden werden
+(Geräte, bei denen im Log "Found x devices via MQTT" steht). Die Room-IDs stammen aus der eufy-App-Karte
+und sind pro Karte/Etage unterschiedlich; sie lassen sich derzeit nicht vom Adapter auslesen.
+Der Befehl wird als Datapoint 124 base64-kodiert an das Gerät geschickt.
+
 Zonenreinigung
 
 ```
@@ -158,6 +163,10 @@ https://developer.tuya.com/en/docs/app-development/gyrosweeper?id=Ka6o1iax9v0a2
 <https://forum.iobroker.net/topic/62168/test-adapter-eufy-home-robovac>
 
 ## Changelog
+### 0.1.7 (2026-09-28)
+
+- add sendCommand (room / zone / spot cleaning) for devices connected via MQTT
+
 ### 0.1.6 (2025-01-15)
 
 - fix login
